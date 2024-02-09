@@ -1,0 +1,24 @@
+# name: Build and Push OCI Image  # Name of the GitHub Actions workflow
+
+# on:
+#   push:
+#     branches:
+#       - main  # Trigger the workflow on pushes to the main branch
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest  # Run the job on the latest version of Ubuntu
+
+#     steps:
+#       - name: Checkout repository  # Checkout the code repository
+#         uses: actions/checkout@v2  # Use the checkout action provided by GitHub Actions
+
+#       - name: Build OCI Image  # Build the OCI image using Buildah
+#         uses: redhat-actions/buildah-build@v2  # Use the buildah-build action provided by Red Hat Actions
+#         with:
+#           image: your_image_name  # Name of the image to be built
+#           tags: latest  # Tags to be applied to the image
+#           containerfiles: |
+#             ./Dockerfile  # Path to the Dockerfile defining the image
+#           archs: amd64, armv8  # Architectures to build the image for
+#           oci: true  # Generate OCI image format
