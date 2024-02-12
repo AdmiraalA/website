@@ -13,12 +13,23 @@
 #       - name: Checkout repository  # Checkout the code repository
 #         uses: actions/checkout@v2  # Use the checkout action provided by GitHub Actions
 
-#       - name: Build OCI Image  # Build the OCI image using Buildah
-#         uses: redhat-actions/buildah-build@v2  # Use the buildah-build action provided by Red Hat Actions
-#         with:
-#           image: ownsite  # Name of the image to be built
-#           tags: latest  # Tags to be applied to the image
-#           containerfiles: |
-#             ./Dockerfile  # Path to the Dockerfile defining the image
-#           archs: amd64, armv8  # Architectures to build the image for
-#           oci: true  # Generate OCI image format
+#      - name: Build OCI Image
+ #       uses: redhat-actions/buildah-build@v2
+#        with:
+ #         image: your_image_name
+ #         tags: ${{ env.IMAGE_TAG }}
+ #         containerfiles: |
+  #          Dockerfile
+#            any-other-files/
+#          archs: amd64, armv8
+#          oci: true
+
+ #     - name: Log in to OCI Registry
+ #       uses: docker/login-action@v2
+ #       with:
+ #         registry: your-registry.example.com
+ #         username: ${{ secrets.REGISTRY_USERNAME }}
+ #         password: ${{ secrets.REGISTRY_PASSWORD }}
+
+  #    - name: Push OCI Image to Registry
+   #     run: buildah push your-registry.example.com/your-image-name:${{ env.IMAGE_TAG }}
