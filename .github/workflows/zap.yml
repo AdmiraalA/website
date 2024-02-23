@@ -13,22 +13,30 @@ jobs:
     name: Scan the webapplication
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.9.0
         with:
           target: 'https://stalapotheek.nl'
-          allow_issue_writing: false
 
-      - name: Suppress email notifications
+      - name: Make Python script executable
+        run: chmod +x filter.py
+
+      - name: Generate SARIF file from ZAP Proxy results
+        id: generate_sarif
         run: |
-          echo "action: 'action_triggered'" >> $GITHUB_EVENT_PATH
-        if: always()
+          # Run ZAP Proxy and pipe the output to a temporary SARIF file
+          # Example: zaproxy-to-ghas > temp_results.sarif
+          # Replace 'zaproxy-to-ghas' with the actual command to generate SARIF file
+          zaproxy-to-ghas > temp_results.sarif
 
-      - name: Create sarif file from zaproxy results
-        uses: SvanBoxel/zaproxy-to-ghas@main
+      - name: Filter Duplicate Entries and Combine Occurrences
+        id: filter_and_combine
+        run: python filter.py
 
-      - name: Upload SARIF file
+      - name: Upload Combined SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: results.sarif
-
+          sarif_file: combined_results.sarif
