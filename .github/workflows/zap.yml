@@ -1,20 +1,25 @@
 name: Webscan  # Name of the GitHub Actions workflow
 
-on:  # Define when to trigger the workflow
-  push:  # Trigger the workflow on pushes to any branch
-    workflow_dispatch:  # Also trigger the workflow manually via GitHub UI
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-jobs:  # Define jobs to be executed within the workflow
-  dast_scan:  # Job named "zap_scan"
-    runs-on: ubuntu-latest  # Run the job on the latest version of Ubuntu
+jobs:
+  dast_scan:
+    runs-on: ubuntu-latest
 
-    name: Scan the webapplication  # Name of the job
+    name: Scan the webapplication
 
-    steps:  # Define steps to be executed within the job
-      - name: ZAP Scan  # Step to perform ZAP Scan
-        uses: zaproxy/action-full-scan@v0.9.0  # Use ZAP Proxy action for performing a full scan
+    steps:
+      - name: Install dependencies
+        run: npm install @octokit/core
+
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.9.0
         with:
-          target: 'https://teststalapotheek.nl'  # Define the target URL for the scan
+          target: 'https://teststalapotheek.nl'
 
       - name: Intercept and move issues to Security tab
         uses: actions/github-script@v6
@@ -32,9 +37,7 @@ jobs:  # Define jobs to be executed within the workflow
             });
 
             for (const issue of issues) {
-              // Check if issue is from ZAP Scan
               if (issue.title.includes('ZAP Scan')) {
-                // Move issue to the Security tab
                 await octokit.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
                   owner: owner,
                   repo: repo,
@@ -43,6 +46,7 @@ jobs:  # Define jobs to be executed within the workflow
                 });
               }
             }
+
 
       # - name: Create sarif file from zaproxy results
       #   uses: SvanBoxel/zaproxy-to-ghas@main
