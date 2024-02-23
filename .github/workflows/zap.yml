@@ -1,46 +1,38 @@
-import json
+name: Webscan  # Name of the GitHub Actions workflow
 
-def combine_occurrences(result):
-    occurrences = set()
-    for location in result.get('locations', []):
-        uri = location.get('physicalLocation', {}).get('artifactLocation', {}).get('uri')
-        if uri:
-            occurrences.add(uri)
-    result['locations'] = [{'physicalLocation': {'artifactLocation': {'uri': ', '.join(occurrences)}}}]
-    return result
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-def filter_and_combine_duplicates(sarif_data):
-    unique_results = {}
-    for result in sarif_data.get('runs', [])[0].get('results', []):
-        key = (result.get('ruleId', ''), result.get('message', ''), result.get('level', ''))
-        key_str = str(key)  # Convert key to a hashable type
-        if key_str not in unique_results:
-            unique_results[key_str] = result
-        else:
-            unique_results[key_str]['occurrences'].append(result['locations'][0]['physicalLocation']['artifactLocation']['uri'])
+jobs:
+  dast_scan:
+    runs-on: ubuntu-latest
 
-    combined_results = []
-    for result in unique_results.values():
-        combined_results.append(combine_occurrences(result))
+    name: Scan the webapplication
 
-    return combined_results
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-# Read SARIF file
-with open('results.sarif', 'r') as file:
-    sarif_data = json.load(file)
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.9.0
+        with:
+          target: 'https://teststalapotheek.nl'
 
-# Filter and combine duplicate entries
-combined_results = filter_and_combine_duplicates(sarif_data)
+      - name: Generate SARIF file from ZAP Proxy results
+        id: generate_sarif
+        uses: SvanBoxel/zaproxy-to-ghas@main
 
-# Add tool information from the action
-tool_info = {
-    'name': 'zaproxy-to-ghas',
-    'version': '2.1.0'
-}
+      - name: Make Python script executable
+        run: chmod +x filter.py
 
-sarif_data['tool'] = {'driver': tool_info}
-sarif_data['version'] = '2.1.0'  # Specify the SARIF version
+      - name: Filter Duplicate Entries and Combine Occurrences
+        id: filter_and_combine
+        run: python filter.py
 
-# Write combined results to a new SARIF file
-with open('combined_results.sarif', 'w') as file:
-    json.dump(sarif_data, file, indent=2)
+      - name: Upload Combined SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: combined_results.sarif
