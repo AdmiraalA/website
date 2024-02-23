@@ -15,32 +15,38 @@ jobs:  # Define jobs to be executed within the workflow
         uses: zaproxy/action-full-scan@v0.9.0  # Use ZAP Proxy action for performing a full scan
         with:
           target: 'https://teststalapotheek.nl'  # Define the target URL for the scan
-      
+
       - name: Intercept and move issues to Security tab
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+            const { Octokit } = require("@octokit/core");
+            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const issues = await octokit.issues.listForRepo({ owner, repo });
-            for (const issue of issues.data) {
+            const { data: issues } = await octokit.request('GET /repos/{owner}/{repo}/issues', {
+              owner: owner,
+              repo: repo
+            });
+
+            for (const issue of issues) {
               // Check if issue is from ZAP Scan
               if (issue.title.includes('ZAP Scan')) {
                 // Move issue to the Security tab
-                await octokit.issues.update({
-                  owner,
-                  repo,
+                await octokit.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
+                  owner: owner,
+                  repo: repo,
                   issue_number: issue.number,
                   labels: ['security']
                 });
               }
             }
 
-#      - name: Create sarif file from zaproxy results
-#        uses: SvanBoxel/zaproxy-to-ghas@main
-#     - name: Upload SARIF file
-#        uses: github/codeql-action/upload-sarif@v1
-#        with:
-#          sarif_file: results.sarif
+      # - name: Create sarif file from zaproxy results
+      #   uses: SvanBoxel/zaproxy-to-ghas@main
+      # - name: Upload SARIF file
+      #   uses: github/codeql-action/upload-sarif@v1
+      #   with:
+      #     sarif_file: results.sarif
