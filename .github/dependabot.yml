@@ -5,8 +5,7 @@
 
 version: 2
 updates:
-  - package-ecosystem: "github"
-    directory: "/"
+  - package-ecosystem: "all" # This will check all supported package ecosystems
+    directory: "/" # Assuming the package manifests are located at the root directory
     schedule:
       interval: "hourly"
-
