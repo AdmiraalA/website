@@ -5,7 +5,7 @@ on:  # Define when to trigger the workflow
     workflow_dispatch:  # Also trigger the workflow manually via GitHub UI
 
 jobs:  # Define jobs to be executed within the workflow
-  zap_scan:  # Job named "zap_scan"
+  dast_scan:  # Job named "zap_scan"
     runs-on: ubuntu-latest  # Run the job on the latest version of Ubuntu
 
     name: Scan the webapplication  # Name of the job
@@ -15,3 +15,9 @@ jobs:  # Define jobs to be executed within the workflow
         uses: zaproxy/action-full-scan@v0.9.0  # Use ZAP Proxy action for performing a full scan
         with:
           target: 'https://teststalapotheek.nl'  # Define the target URL for the scan
+      - name: Create sarif file from zaproxy results
+        uses: SvanBoxel/zaproxy-to-ghas@main
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: results.sarif
