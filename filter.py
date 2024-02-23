@@ -32,14 +32,14 @@ with open('results.sarif', 'r') as file:
 # Filter and combine duplicate entries
 combined_results = filter_and_combine_duplicates(sarif_data)
 
-# Add tool information from the action
+# Add tool information from the action under the 'runs' array
 tool_info = {
     'name': 'zaproxy-to-ghas',
     'version': '2.1.0'
 }
+sarif_data['runs'][0]['tool'] = {'driver': tool_info}
 
-sarif_data['tool'] = {'driver': tool_info}
-sarif_data['version'] = '2.1.0'  # Specify the SARIF version
+# Remove attempt to add tool information at the top level
 
 # Write combined results to a new SARIF file
 with open('combined_results.sarif', 'w') as file:
