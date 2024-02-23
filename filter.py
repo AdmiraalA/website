@@ -13,10 +13,11 @@ def filter_and_combine_duplicates(sarif_data):
     unique_results = {}
     for result in sarif_data.get('runs', [])[0].get('results', []):
         key = (result.get('ruleId', ''), result.get('message', ''), result.get('level', ''))
-        if key not in unique_results:
-            unique_results[key] = result
+        key_str = str(key)  # Convert key to a hashable type
+        if key_str not in unique_results:
+            unique_results[key_str] = result
         else:
-            unique_results[key]['occurrences'].append(result['locations'][0]['physicalLocation']['artifactLocation']['uri'])
+            unique_results[key_str]['occurrences'].append(result['locations'][0]['physicalLocation']['artifactLocation']['uri'])
 
     combined_results = []
     for result in unique_results.values():
@@ -32,10 +33,12 @@ with open('results.sarif', 'r') as file:
 combined_results = filter_and_combine_duplicates(sarif_data)
 
 # Add tool information from the action
-with open('tool_info.json', 'r') as file:
-    tool_info = json.load(file)
+tool_info = {
+    'name': 'zaproxy-to-ghas',
+    'version': '2.1.0'
+}
 
-sarif_data['runs'][0]['tool'] = tool_info['tool']
+sarif_data['tool'] = {'driver': tool_info}
 sarif_data['version'] = '2.1.0'  # Specify the SARIF version
 
 # Write combined results to a new SARIF file
