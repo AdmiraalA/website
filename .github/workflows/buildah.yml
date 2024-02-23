@@ -13,23 +13,23 @@ name: Build and Push OCI Image  # Name of the GitHub Actions workflow
 #       - name: Checkout repository  # Checkout the code repository
 #         uses: actions/checkout@v2  # Use the checkout action provided by GitHub Actions
 
-#      - name: Build OCI Image
- #       uses: redhat-actions/buildah-build@v2
-#        with:
- #         image: your_image_name
- #         tags: ${{ env.IMAGE_TAG }}
- #         containerfiles: |
-  #          Dockerfile
-#            any-other-files/
-#          archs: amd64, armv8
-#          oci: true
+#       - name: Build OCI Image
+#         uses: redhat-actions/buildah-build@v2
+#         with:
+#           image: your_image_name
+#           tags: ${{ env.IMAGE_TAG }}
+#           containerfiles: |
+#             Dockerfile
+#             any-other-files/
+#           archs: amd64, armv8
+#           oci: true
 
- #     - name: Log in to OCI Registry
- #       uses: docker/login-action@v2
- #       with:
- #         registry: your-registry.example.com
- #         username: ${{ secrets.REGISTRY_USERNAME }}
- #         password: ${{ secrets.REGISTRY_PASSWORD }}
+#       - name: Log in to OCI Registry
+#         uses: docker/login-action@v2
+#         with:
+#           registry: your-registry.example.com
+#           username: ${{ secrets.REGISTRY_USERNAME }}
+#           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-  #    - name: Push OCI Image to Registry
-   #     run: buildah push your-registry.example.com/your-image-name:${{ env.IMAGE_TAG }}
+#       - name: Push OCI Image to Registry
+#         run: buildah push your-registry.example.com/your-image-name:${{ env.IMAGE_TAG }}
