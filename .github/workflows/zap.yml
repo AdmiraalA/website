@@ -19,16 +19,14 @@ jobs:
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.9.0
         with:
-          target: 'https://stalapotheek.nl'
+          target: 'https://teststalapotheek.nl'
+
+      - name: Generate SARIF file from ZAP Proxy results
+        uses: SvanBoxel/zaproxy-to-ghas@main
+        id: generate_sarif
 
       - name: Make Python script executable
         run: chmod +x filter.py
-
-      - name: Filter and Create SARIF file from zaproxy results
-        id: create_sarif
-        run: |
-          # Run zaproxy-to-ghas and pipe the output to a temporary SARIF file
-          SvanBoxel/zaproxy-to-ghas@main temp_results.sarif
 
       - name: Filter Duplicate Entries and Combine Occurrences
         id: filter_and_combine
