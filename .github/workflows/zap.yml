@@ -15,20 +15,21 @@ jobs:  # Define jobs to be executed within the workflow
         uses: zaproxy/action-full-scan@v0.9.0  # Use ZAP Proxy action for performing a full scan
         with:
           target: 'https://teststalapotheek.nl'  # Define the target URL for the scan
+      
       - name: Intercept and move issues to Security tab
         uses: actions/github-script@v5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const github = context.github;
+            const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const issues = await github.issues.listForRepo({ owner, repo });
+            const issues = await octokit.issues.listForRepo({ owner, repo });
             for (const issue of issues.data) {
               // Check if issue is from ZAP Scan
               if (issue.title.includes('ZAP Scan')) {
                 // Move issue to the Security tab
-                await github.issues.update({
+                await octokit.issues.update({
                   owner,
                   repo,
                   issue_number: issue.number,
@@ -36,6 +37,7 @@ jobs:  # Define jobs to be executed within the workflow
                 });
               }
             }
+
 #      - name: Create sarif file from zaproxy results
 #        uses: SvanBoxel/zaproxy-to-ghas@main
 #     - name: Upload SARIF file
