@@ -1,4 +1,4 @@
-name: Webscan  # Name of the GitHub Actions workflow
+nname: Webscan  # Name of the GitHub Actions workflow
 
 on:
   push:
@@ -27,7 +27,12 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { Octokit } = require("@octokit/core");
-            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+            const octokit = new Octokit({ 
+              auth: process.env.GITHUB_TOKEN,
+              request: {
+                fetch: require('node-fetch')
+              }
+            });
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -46,6 +51,7 @@ jobs:
                 });
               }
             }
+
 
 
       # - name: Create sarif file from zaproxy results
