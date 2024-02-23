@@ -20,28 +20,32 @@ jobs:
 
       - name: Delete issues created by ZAP Scan
         run: |
-          token=${{ secrets.GITHUB_TOKEN }}
-          owner=${{ github.repository_owner }}
-          repo=${{ github.event.repository.name }}
-          issue_numbers=$(curl -s -H "Authorization: token $token" \
-              "https://api.github.com/repos/$owner/$repo/issues?state=all" \
-              | jq '.[] | select(.title | test("ZAP Scan")) | .number')
+          # Install jq for JSON parsing
+          sudo apt-get update && sudo apt-get install -y jq
 
-          for number in $issue_numbers; do
-              curl -XDELETE -H "Authorization: token $token" \
-                  "https://api.github.com/repos/$owner/$repo/issues/$number"
+          # Get the current repository name
+          repo=$(basename "$(pwd)")
+
+          # Get all issues in the repository
+          issues=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues?state=all" \
+              | jq -r '.[] | select(.title | test("ZAP Scan")) | .number')
+
+          # Delete each issue
+          for number in $issues; do
+              curl -X DELETE \
+                  "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/$number"
           done
 
       - name: Suppress email notifications
         run: |
           echo "action: 'action_triggered'" >> $GITHUB_EVENT_PATH
-
         if: always()
 
       - name: Create sarif file from zaproxy results
         uses: SvanBoxel/zaproxy-to-ghas@main
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v1
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
+
