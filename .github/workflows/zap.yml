@@ -17,24 +17,7 @@ jobs:
         uses: zaproxy/action-full-scan@v0.9.0
         with:
           target: 'https://teststalapotheek.nl'
-
-      - name: Delete issues created by ZAP Scan
-        run: |
-          # Install jq for JSON parsing
-          sudo apt-get update && sudo apt-get install -y jq
-
-          # Get the current repository name
-          repo=$(basename "$(pwd)")
-
-          # Get all issues in the repository
-          issues=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues?state=all" \
-              | jq -r '.[] | select(.title | test("ZAP Scan")) | .number')
-
-          # Delete each issue
-          for number in $issues; do
-              curl -X DELETE \
-                  "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/$number"
-          done
+          allow_issue_writing: false
 
       - name: Suppress email notifications
         run: |
