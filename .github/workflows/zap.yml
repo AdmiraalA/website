@@ -24,13 +24,11 @@ jobs:
       - name: Make Python script executable
         run: chmod +x filter.py
 
-      - name: Generate SARIF file from ZAP Proxy results
-        id: generate_sarif
+      - name: Filter and Create SARIF file from zaproxy results
+        id: create_sarif
         run: |
-          # Run ZAP Proxy and pipe the output to a temporary SARIF file
-          # Example: zaproxy-to-ghas > temp_results.sarif
-          # Replace 'zaproxy-to-ghas' with the actual command to generate SARIF file
-          zaproxy-to-ghas > temp_results.sarif
+          # Run zaproxy-to-ghas and pipe the output to a temporary SARIF file
+          SvanBoxel/zaproxy-to-ghas@main temp_results.sarif
 
       - name: Filter Duplicate Entries and Combine Occurrences
         id: filter_and_combine
