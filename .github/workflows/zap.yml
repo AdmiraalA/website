@@ -25,7 +25,7 @@ jobs:
         id: generate_sarif
         uses: SvanBoxel/zaproxy-to-ghas@main
         with:
-          node-version: '20' #testing if working by doing this
+          node-version: '' #testing if working by doing this
 
       - name: Make Python script executable
         run: chmod +x filter.py
